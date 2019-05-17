@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="800" height="600" style="border:2px solid #f00">
+        ^^^^
+    </canvas>
+</body>
+<script>
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+
+// 
+var publicFn = {
+    random: function(min, max) {
+        return parseInt(Math.random() * (max - min) + min);
+    },
+    randomColor: function() {
+        var color = "rgb(";
+        for (var i = 0; i < 3; i++) {
+            if (i == 2) {
+                color += this.random(0, 255) + ')';
+            } else {
+                color += this.random(0, 255) + ',';
+            }
+        }
+        return color;
+    }
+}
+
+
+//小球类
+function Ball() {
+    //随机半径
+    this.r = publicFn.random(40, 80);
+    //随机颜色
+    this.color = publicFn.randomColor();
+    // 随机圆心位置
+    this.x = publicFn.random(this.r, canvas.width - this.r);
+    this.y = publicFn.random(this.r, canvas.height - this.r);
+    //随机速度
+    this.speedX=publicFn.random(2,7);
+    this.speedY=publicFn.random(2,7);
+
+}
+
+Ball.prototype={
+	move:function(){//小球移动
+		this.x+=this.speedX;
+		this.y+=this.speedY;
+		this.crash();
+		this.ballCrash();
+	},
+	crash:function(){
+		//左边界
+		if(this.x<=this.r){
+			this.x=this.r;
+			this.speedX*=-1;
+		}
+		// 右边界
+		if(this.x>=canvas.width-this.r){
+			this.x=canvas.width-this.r;
+			this.speedX*=-1;
+		}
+		//上边界
+		if(this.y<=this.r){
+			this.y=this.r;
+			this.speedY*=-1;
+		}
+		//下边界
+		if(this.y>=canvas.height-this.r){
+			this.y=canvas.height-this.r;
+			this.speedY*=-1;
+		}
+	},
+	ballCrash:function(){
+		for(var i=0;i<balls.length;i++){
+			if(this==balls[i]){
+				continue;
+			}
+			var isTrue=this.isBallCrash(this,balls[i]);
+			if(isTrue){
+				//互换速度
+				var tempX=this.speedX;
+				this.speedX=balls[i].speedX;
+				balls[i].speedX=tempX;
+
+				var tempY=this.speedY;
+				this.speedY=balls[i].speedY;
+				balls[i].speedY=tempY;
+
+
+			}else{
+
+			}
+		}
+	},
+	isBallCrash:function(ball1,ball2){
+		//球的碰撞检测
+		//两个小球的距离
+		var distance=Math.sqrt(Math.pow(ball1.x-ball2.x,2)+Math.pow(ball1.y-ball2.y,2));
+		if(distance<=ball1.r+ball2.r){
+			return true;
+		}else {
+			return false;
+		}
+	},
+	draw:function(){
+		ctx.beginPath();
+		ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+		ctx.fillStyle=this.color;
+		ctx.fill();
+		ctx.closePath();
+	}
+}
+
+
+	//创建小球对象
+	//实例化对象
+	var balls=[];//存储小球对象
+	for(var j=0;j<10;j++){
+		A();
+		// var ball=new Ball();
+		// balls.push(ball);
+	}
+
+	function A(){
+		var b=new Ball();
+		for(var i=0;i<balls.length;i++){
+			// debugger
+			if(b.isBallCrash(b,balls[i])){
+				return A;
+			}
+		}
+		balls.push(b);
+	}
+
+	function animation(){
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+		for(var i=0;i<balls.length;i++){
+			balls[i].move();
+			balls[i].draw();
+		}
+		window.requestAnimationFrame(animation);
+	}
+
+	animation();
+
+
+</script>
+
+</html>
